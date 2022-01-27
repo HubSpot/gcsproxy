@@ -30,6 +30,7 @@ func handleError(w http.ResponseWriter, err error) {
 		if err == storage.ErrObjectNotExist {
 			http.Error(w, err.Error(), http.StatusNotFound)
 		} else {
+			log.Printf("[service] error reading from gcs: %s", err.Error())
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 		return
