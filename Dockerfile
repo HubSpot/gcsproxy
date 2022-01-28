@@ -2,6 +2,7 @@ FROM golang:alpine AS go
 
 COPY ./main.go /app/main.go
 COPY ./go.mod /app/go.mod
+COPY ./go.sum /app/go.sum
 WORKDIR /app
 RUN go build -o gcsproxy
 
