@@ -2,7 +2,7 @@ FROM golang:alpine AS go
 
 COPY ./main.go /app/main.go
 WORKDIR /app
-RUN go build main.go -o gcsproxy
+RUN go build -o gcsproxy
 
 FROM alpine:3.14
 
