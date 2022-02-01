@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"cloud.google.com/go/storage"
@@ -77,6 +78,11 @@ func (w *wrapResponseWriter) WriteHeader(status int) {
 
 func wrapper(fn func(w http.ResponseWriter, r *http.Request)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		if strings.Contains(r.URL.Path, "/om/hubspot/") {
+			http.Error(w, r.URL.Path, http.StatusNotFound)
+			return
+		}
+
 		proc := time.Now()
 		writer := &wrapResponseWriter{
 			ResponseWriter: w,
