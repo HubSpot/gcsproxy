@@ -1,6 +1,6 @@
-module github.com/daichirata/gcsproxy
+module github.com/HubSpot/gcsproxy
 
-go 1.12
+go 1.17
 
 require (
 	cloud.google.com/go/compute v1.1.0 // indirect
