@@ -19,6 +19,7 @@ var (
 	bind        = flag.String("b", "127.0.0.1:8080", "Bind address")
 	verbose     = flag.Bool("v", false, "Show access log")
 	credentials = flag.String("c", "", "The path to the keyfile. If not present, client will use your default application credentials.")
+	gcsTimeout  = flag.Int("t", 3, "GCS request timeout in seconds")
 )
 
 var (
@@ -108,7 +109,11 @@ func wrapper(fn func(w http.ResponseWriter, r *http.Request)) http.HandlerFunc {
 func proxy(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	obj := client.Bucket(params["bucket"]).Object(params["object"])
-	attr, err := obj.Attrs(ctx)
+
+	ctxWithTimeout, cancel := context.WithTimeout(ctx, time.Duration(*gcsTimeout) * time.Second)
+	defer cancel()
+
+	attr, err := obj.Attrs(ctxWithTimeout)
 	if err != nil {
 		handleError(w, err)
 		return
@@ -119,7 +124,8 @@ func proxy(w http.ResponseWriter, r *http.Request) {
 	setStrHeader(w, "Content-Encoding", attr.ContentEncoding)
 	setStrHeader(w, "Content-Disposition", attr.ContentDisposition)
 	setIntHeader(w, "Content-Length", attr.Size)
-	objr, err := obj.NewReader(ctx)
+
+	objr, err := obj.NewReader(ctxWithTimeout)
 	if err != nil {
 		handleError(w, err)
 		return
